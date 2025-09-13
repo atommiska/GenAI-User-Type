@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GenAI User Type Questionnaire</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        .question {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background-color: #fafafa;
+        }
+        .question h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .option {
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-color: white;
+        }
+        .option:hover {
+            border-color: #007bff;
+            background-color: #f8f9fa;
+        }
+        .option.selected {
+            border-color: #007bff;
+            background-color: #e3f2fd;
+        }
+        .submit-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+            width: 100%;
+        }
+        .submit-btn:hover {
+            background-color: #0056b3;
+        }
+        .submit-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .results {
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+        }
+        .chart-container {
+            margin-top: 20px;
+            height: 400px;
+            display: flex;
+            justify-content: center;
+        }
+        .scores {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .score-item {
+            padding: 15px;
+            background-color: white;
+            border-radius: 5px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+        .score-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .score-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // Fisher-Yates shuffle algorithm
+        const shuffleArray = (array) => {
+          const shuffled = [...array];
+          for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+          }
+          return shuffled;
+        };
+
+        // All GenAI user type questionnaire questions
+        const allQuestions = [
+          {
+            id: 1,
+            question: "Do you use GenAI more...?",
+            options: [
+              { text: "to get tasks done quickly", type: "achiever" },
+              { text: "to test strange or experimental prompts just to see what happens", type: "explorer" }
+            ]
+          },
+          {
+            id: 2,
+            question: "What feels more rewarding?",
+            options: [
+              { text: "Having a polished report finished in minutes.", type: "achiever" },
+              { text: "Figuring out how to make the AI generate something it was not \"supposed\" to", type: "explorer" }
+            ]
+          },
+          {
+            id: 3,
+            question: "Which excites you more?",
+            options: [
+              { text: "AI helping you organize your daily workflow.", type: "achiever" },
+              { text: "AI producing something bizarre and unexpected.", type: "explorer" }
+            ]
+          },
+          {
+            id: 4,
+            question: "Would you rather...?",
+            options: [
+              { text: "automate repetitive email writing", type: "achiever" },
+              { text: "experiment with poems written in 10 different historical styles", type: "explorer" }
+            ]
+          },
+          {
+            id: 5,
+            question: "When showing GenAI to a friend, do you highlight...?",
+            options: [
+              { text: "time-saving uses", type: "achiever" },
+              { text: "quirky, creative tricks", type: "explorer" }
+            ]
+          },
+          {
+            id: 6,
+            question: "Which sounds better?",
+            options: [
+              { text: "Saving 2 hours every day on routine tasks", type: "achiever" },
+              { text: "Discovering how to make AI generate an entirely new artform", type: "explorer" }
+            ]
+          },
+          {
+            id: 7,
+            question: "Would you rather...?",
+            options: [
+              { text: "have a reliable GenAI assistant you always trust", type: "achiever" },
+              { text: "access a beta model with unpredictable, experimental powers", type: "explorer" }
+            ]
+          },
+          {
+            id: 8,
+            question: "Do you enjoy...?",
+            options: [
+              { text: "AI as a productivity partner", type: "achiever" },
+              { text: "AI as your playground for exploration", type: "explorer" }
+            ]
+          },
+          {
+            id: 9,
+            question: "Which is more important?",
+            options: [
+              { text: "AI that integrates neatly into your work tools.", type: "achiever" },
+              { text: "AI that allows endless tinkering and prompt experimentation.", type: "explorer" }
+            ]
+          },
+          {
+            id: 10,
+            question: "Would you rather...?",
+            options: [
+              { text: "use AI cautiously to preserve human responsibility", type: "socializer" },
+              { text: "automate as much as possible, even if mistakes happen", type: "killer" }
+            ]
+          },
+          {
+            id: 11,
+            question: "When AI makes an error, do you...?",
+            options: [
+              { text: "consider the human consequences", type: "socializer" },
+              { text: "shrug it off if you're still profiting", type: "killer" }
+            ]
+          },
+          {
+            id: 12,
+            question: "Do you think more about...?",
+            options: [
+              { text: "how AI affects people's dignity and empathy", type: "socializer" },
+              { text: "how powerfully it can shortcut your own workload", type: "killer" }
+            ]
+          },
+          {
+            id: 13,
+            question: "Which do you value more?",
+            options: [
+              { text: "Ethical oversight of AI.", type: "socializer" },
+              { text: "Getting results quickly, even if messy.", type: "killer" }
+            ]
+          },
+          {
+            id: 14,
+            question: "If you could give AI to students, would you want them...?",
+            options: [
+              { text: "to learn with AI as a guide", type: "socializer" },
+              { text: "to hand in AI-written essays effortlessly", type: "killer" }
+            ]
+          },
+          {
+            id: 15,
+            question: "Would you rather...?",
+            options: [
+              { text: "debate AI's impact on humanity", type: "socializer" },
+              { text: "laugh about AI hallucinating in your last project while still using it's output", type: "killer" }
+            ]
+          },
+          {
+            id: 16,
+            question: "Is AI...?",
+            options: [
+              { text: "something that must strengthen human agency", type: "socializer" },
+              { text: "a tool you exploit however you see fit", type: "killer" }
+            ]
+          },
+          {
+            id: 17,
+            question: "Which one you prefer more?",
+            options: [
+              { text: "AI must protect empathy, learning, and human growth.", type: "socializer" },
+              { text: "AI is just faster – responsibility isn't my problem.", type: "killer" }
+            ]
+          },
+          {
+            id: 18,
+            question: "If AI causes harm, do you think about...?",
+            options: [
+              { text: "who is affected and how to fix it", type: "socializer" },
+              { text: "how to avoid the blame while continuing to use it", type: "killer" }
+            ]
+          },
+          {
+            id: 19,
+            question: "Which matters more for you?",
+            options: [
+              { text: "Responsible, careful adoption of AI at societal scale.", type: "socializer" },
+              { text: "Personal advantage you squeeze out of it right now.", type: "killer" }
+            ]
+          },
+          {
+            id: 20,
+            question: "Would you rather...?",
+            options: [
+              { text: "be known for discovering new GenAI tricks", type: "explorer" },
+              { text: "be known for cutting hours from your projects with AI", type: "achiever" }
+            ]
+          },
+          {
+            id: 21,
+            question: "Which do you find more interesting?",
+            options: [
+              { text: "Seeing how AI reshapes entire society.", type: "socializer" },
+              { text: "Finding loopholes to exploit AI responses.", type: "killer" }
+            ]
+          },
+          {
+            id: 22,
+            question: "Your preferred headline:",
+            options: [
+              { text: "Worker saves hours daily with AI", type: "achiever" },
+              { text: "Artist bends AI to do bizarre, impossible tricks", type: "explorer" }
+            ]
+          },
+          {
+            id: 23,
+            question: "Who do you admire more?",
+            options: [
+              { text: "People who carefully set ethical AI standards.", type: "socializer" },
+              { text: "People who aren't afraid to exploit AI recklessly for gain.", type: "killer" }
+            ]
+          },
+          {
+            id: 24,
+            question: "Which attracts you more?",
+            options: [
+              { text: "The new AI integrated in office tools", type: "achiever" },
+              { text: "An experimental AI model still in raw form", type: "explorer" }
+            ]
+          },
+          {
+            id: 25,
+            question: "If your AI demo fails, are you more...?",
+            options: [
+              { text: "embarrassed about wrong information affecting someone", type: "socializer" },
+              { text: "amused that it's messy but still useful for cutting corners", type: "killer" }
+            ]
+          },
+          {
+            id: 26,
+            question: "Which workshop title appeals to you more?",
+            options: [
+              { text: "Practical skills to boost productivity with GenAI", type: "achiever" },
+              { text: "Creative hacks, bizarre prompts, wild experiments", type: "explorer" }
+            ]
+          },
+          {
+            id: 27,
+            question: "In conversation about AI, do you...?",
+            options: [
+              { text: "focus on efficiency gains in your daily life", type: "achiever" },
+              { text: "focus on human meaning and cultural implications", type: "socializer" }
+            ]
+          },
+          {
+            id: 28,
+            question: "If you published an AI project, would you prefer recognition for...?",
+            options: [
+              { text: "clever shortcuts that save real time", type: "achiever" },
+              { text: "experiments that reveal hidden AI behaviors", type: "explorer" }
+            ]
+          },
+          {
+            id: 29,
+            question: "Which one scares you more?",
+            options: [
+              { text: "Losing empathy and humanity in AI adoption.", type: "socializer" },
+              { text: "Falling behind others who exploit AI recklessly.", type: "killer" }
+            ]
+          },
+          {
+            id: 30,
+            question: "You are asked to use AI for a big project. Do you...?",
+            options: [
+              { text: "train it to handle your admin work quickly", type: "achiever" },
+              { text: "try 5 weird creative uses no one else thought of", type: "explorer" }
+            ]
+          },
+          {
+            id: 31,
+            question: "You notice colleagues misusing AI dangerously. Do you...?",
+            options: [
+              { text: "warn them about ethical risks", type: "socializer" },
+              { text: "see if you can take advantage while they take the blame", type: "killer" }
+            ]
+          },
+          {
+            id: 32,
+            question: "Your AI makes a silly but funny mistake. Do you...?",
+            options: [
+              { text: "share it as a teaching story about AI limits", type: "socializer" },
+              { text: "ignore it if the shortcut saved your time anyway", type: "killer" }
+            ]
+          },
+          {
+            id: 33,
+            question: "Your friend wants AI for studying. Do you suggest...?",
+            options: [
+              { text: "using it for summaries to help learn", type: "socializer" },
+              { text: "having it write their entire essay", type: "killer" }
+            ]
+          },
+          {
+            id: 34,
+            question: "Big new AI model is released. Do you...?",
+            options: [
+              { text: "test it's limits by creative hacking", type: "explorer" },
+              { text: "integrate it into your routines to save time", type: "achiever" }
+            ]
+          },
+          {
+            id: 35,
+            question: "Which one feels worse?",
+            options: [
+              { text: "AI stripping away empathy and jobs.", type: "socializer" },
+              { text: "AI being too restricted by \"ethics police\" to let you exploit it fully.", type: "killer" }
+            ]
+          },
+          {
+            id: 36,
+            question: "If you could design GenAI rules, would you...?",
+            options: [
+              { text: "prioritize dignity, fairness, humanity", type: "socializer" },
+              { text: "leave freedom for wild play, even if risky", type: "killer" }
+            ]
+          },
+          {
+            id: 37,
+            question: "What would you love to brag about?",
+            options: [
+              { text: "How many hours you saved with AI last week.", type: "achiever" },
+              { text: "The weirdest unexpected result you forced AI to produce.", type: "explorer" }
+            ]
+          },
+          {
+            id: 38,
+            question: "You win an AI hackathon. Do you prefer that the victory is...?",
+            options: [
+              { text: "for building a practical tool people can actually use immediately", type: "achiever" },
+              { text: "for showing a bizarre capability no one spotted before", type: "explorer" }
+            ]
+          },
+          {
+            id: 39,
+            question: "You publish about AI. Do you want to be known as...?",
+            options: [
+              { text: "the practical, responsible guide for real-life utility", type: "achiever" },
+              { text: "the rule-breaker showing off power without responsibility", type: "killer" }
+            ]
+          }
+        ];
+
+        function Questionnaire() {
+          const [answers, setAnswers] = useState({});
+          const [showResults, setShowResults] = useState(false);
+          const [scores, setScores] = useState({ achiever: 0, explorer: 0, socializer: 0, killer: 0 });
+          const [questions, setQuestions] = useState([]);
+          const chartRef = useRef(null);
+          const chartInstance = useRef(null);
+
+          // Initialize shuffled questions on component mount
+          useEffect(() => {
+            const shuffledQuestions = shuffleArray(allQuestions).map((q, index) => ({
+              ...q,
+              displayId: index + 1 // Renumber questions 1-39 for display
+            }));
+            setQuestions(shuffledQuestions);
+          }, []);
+
+          const handleAnswerSelect = (questionId, type) => {
+            setAnswers(prev => ({
+              ...prev,
+              [questionId]: type
+            }));
+          };
+
+          const calculateScores = () => {
+            const newScores = { achiever: 0, explorer: 0, socializer: 0, killer: 0 };
+            
+            Object.values(answers).forEach(type => {
+              newScores[type] += 1;
+            });
+            
+            return newScores;
+          };
+
+          const handleSubmit = () => {
+            const calculatedScores = calculateScores();
+            setScores(calculatedScores);
+            setShowResults(true);
+          };
+
+          const computeAxes = (scores) => {
+            const totalAE = scores.achiever + scores.explorer;
+            const totalKS = scores.killer + scores.socializer;
+            
+            // Avoid division by zero
+            const x = totalAE > 0 ? (scores.achiever - scores.explorer) / totalAE : 0;
+            const y = totalKS > 0 ? (scores.killer - scores.socializer) / totalKS : 0;
+            
+            return { x, y };
+          };
+
+          const createChart = () => {
+            if (chartInstance.current) {
+              chartInstance.current.destroy();
+            }
+
+            const ctx = chartRef.current.getContext('2d');
+            const { x, y } = computeAxes(scores);
+
+            chartInstance.current = new Chart(ctx, {
+              type: 'scatter',
+              data: {
+                datasets: [{
+                  label: 'Your GenAI User Type',
+                  data: [{ x: x, y: y }],
+                  backgroundColor: 'rgba(0, 123, 255, 0.8)',
+                  borderColor: 'rgba(0, 123, 255, 1)',
+                  borderWidth: 2,
+                  pointRadius: 10,
+                  pointHoverRadius: 12
+                }]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                layout: {
+                  padding: {
+                    top: 30,
+                    bottom: 30,
+                    left: 50,
+                    right: 50
+                  }
+                },
+                scales: {
+                  x: {
+                    type: 'linear',
+                    position: 'center',
+                    min: -1.0,
+                    max: 1.0,
+                    title: {
+                      display: true,
+                      text: 'Mad AI Scientist ←              → Everyday Pragmatist'
+                    },
+                    grid: {
+                      color: 'rgba(0, 0, 0, 0.1)'
+                    }
+                  },
+                  y: {
+                    type: 'linear',
+                    position: 'center',
+                    min: -1.0,
+                    max: 1.0,
+                    title: {
+                      display: true,
+                      text: 'Reckless Wizard ←              → AI Humanist'
+                    },
+                    grid: {
+                      color: 'rgba(0, 0, 0, 0.1)'
+                    }
+                  }
+                },
+                plugins: {
+                  legend: {
+                    display: false
+                  },
+                  tooltip: {
+                    callbacks: {
+                      label: function(context) {
+                        return `Position: (${context.parsed.x.toFixed(2)}, ${context.parsed.y.toFixed(2)})`;
+                      }
+                    }
+                  }
+                }
+              }
+            });
+          };
+
+          useEffect(() => {
+            if (showResults && chartRef.current) {
+              createChart();
+            }
+            
+            return () => {
+              if (chartInstance.current) {
+                chartInstance.current.destroy();
+              }
+            };
+          }, [showResults, scores]);
+
+          const isAllAnswered = Object.keys(answers).length === questions.length;
+
+          const getPlayerTypeDescription = () => {
+            const { x, y } = computeAxes(scores);
+            
+            let primary = '';
+            let secondary = '';
+            
+            if (Math.abs(x) > Math.abs(y)) {
+              primary = x > 0 ? 'Everyday Pragmatist' : 'Mad AI Scientist';
+              secondary = y > 0 ? 'Reckless Wizard' : 'AI Humanist';
+            } else {
+              primary = y > 0 ? 'Reckless Wizard' : 'AI Humanist';
+              secondary = x > 0 ? 'Everyday Pragmatist' : 'Mad AI Scientist';
+            }
+            
+            return `${primary} with ${secondary} tendencies`;
+          };
+
+          if (showResults) {
+            return (
+              <div className="container">
+                <h1>Your GenAI User Type Results</h1>
+                
+                <div className="results">
+                  <h2>Score Breakdown</h2>
+                  <div className="scores">
+                    <div className="score-item">
+                      <div className="score-value">{scores.achiever}</div>
+                      <div className="score-label">Everyday Pragmatist</div>
+                    </div>
+                    <div className="score-item">
+                      <div className="score-value">{scores.explorer}</div>
+                      <div className="score-label">Mad AI Scientist</div>
+                    </div>
+                    <div className="score-item">
+                      <div className="score-value">{scores.socializer}</div>
+                      <div className="score-label">AI Humanist</div>
+                    </div>
+                    <div className="score-item">
+                      <div className="score-value">{scores.killer}</div>
+                      <div className="score-label">Reckless Wizard</div>
+                    </div>
+                  </div>
+                  
+                  <h2>Your GenAI User Type: {getPlayerTypeDescription()}</h2>
+                  
+                  <div className="chart-container">
+                    <canvas ref={chartRef} width="400" height="400"></canvas>
+                  </div>
+                  
+                  <div style={{ marginTop: '20px', fontSize: '14px', color: '#666' }}>
+                    <p><strong>Chart Explanation:</strong></p>
+                    <ul>
+                      <li>X-axis: Mad AI Scientist (left) ← → Everyday Pragmatist (right)</li>
+                      <li>Y-axis: AI Humanist (bottom) ← → Reckless Wizard (top)</li>
+                      <li>Your position shows your dominant GenAI user type tendencies</li>
+                    </ul>
+                  </div>
+                  
+                  <div style={{ marginTop: '20px', fontSize: '14px', color: '#666' }}>
+                    <p><strong>User types Explanation:</strong></p>
+                    <ul>
+                      <li><b>Reckless Wizard:</b> The chaos caster: lives for glitches, loopholes, and forbidden outputs.</li>
+                      <li><b>Mad AI Scientist:</b> The digital tinkerer: fiddles with AI to uncover surprises and patterns.</li>
+                      <li><b>Everyday Pragmatist:</b> The power‑user: asks AI for results, achievements, and winning outcomes.</li>
+                      <li><b>AI Humanist:</b> The friendly chatter: treats AI like a buddy, not just a tool.</li>
+                    </ul>
+                  </div>
+
+                  <button 
+                    className="submit-btn" 
+                    onClick={() => {
+                      setShowResults(false);
+                      setAnswers({});
+                      setScores({ achiever: 0, explorer: 0, socializer: 0, killer: 0 });
+                      // Re-shuffle questions for new quiz
+                      const shuffledQuestions = shuffleArray(allQuestions).map((q, index) => ({
+                        ...q,
+                        displayId: index + 1
+                      }));
+                      setQuestions(shuffledQuestions);
+                    }}
+                  >
+                    Take Quiz Again
+                  </button>
+                </div>
+              </div>
+            );
+          }
+
+          return (
+            <div className="container">
+              <h1>GenAI User Type Questionnaire</h1>
+              <p style={{ textAlign: 'center', color: '#666', marginBottom: '5px' }}>
+                Answer all questions to discover your GenAI usage personality type.
+              </p>
+              <p style={{ textAlign: 'center', color: '#666', marginBottom: '20px' }}>
+              (Based loosely on Bartle's taxonomy of player types).
+              </p>
+
+              {questions.map((q) => (
+                <div key={q.id} className="question">
+                  <h3>Question {q.displayId}: {q.question}</h3>
+                  <div className="options">
+                    {q.options.map((option, index) => (
+                      <div
+                        key={index}
+                        className={`option ${answers[q.id] === option.type ? 'selected' : ''}`}
+                        onClick={() => handleAnswerSelect(q.id, option.type)}
+                      >
+                        {option.text}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+              
+              <button 
+                className="submit-btn" 
+                onClick={handleSubmit}
+                disabled={!isAllAnswered}
+              >
+                {isAllAnswered ? 'Submit & See Results' : `Answer ${questions.length - Object.keys(answers).length} more questions`}
+              </button>
+            </div>
+          );
+        }
+
+        // Render the app
+        ReactDOM.render(<Questionnaire />, document.getElementById('root'));
+    </script>
+</body>
+</html>
