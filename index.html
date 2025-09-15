@@ -40,7 +40,7 @@
             row-gap: 10px;
         }
         .option {
-            padding: 4px;
+            padding: 8px;
             border: 1px solid #ddd;
             border-radius: 5px;
             cursor: pointer;
@@ -59,7 +59,7 @@
             background-color: #007bff;
             color: white;
             border: none;
-            padding: 4px 4px;
+            padding: 8px 8px;
             font-size: 16px;
             border-radius: 5px;
             cursor: pointer;
@@ -255,7 +255,7 @@
             question: "Would you rather...?",
             options: [
               { text: "debate AI's impact on humanity", type: "socializer" },
-              { text: "laugh about AI hallucinating in your last project while still using it's output", type: "killer" }
+              { text: "laugh about AI \"hallucinating\" in your last project while still using it's output", type: "killer" }
             ]
           },
           {
@@ -263,7 +263,7 @@
             question: "Is AI...?",
             options: [
               { text: "something that must strengthen human agency", type: "socializer" },
-              { text: "a tool you exploit however you see fit", type: "killer" }
+              { text: "a tool you should be able to use however you like", type: "killer" }
             ]
           },
           {
@@ -302,7 +302,7 @@
             id: 21,
             question: "Which do you find more interesting?",
             options: [
-              { text: "Seeing how AI reshapes entire society.", type: "socializer" },
+              { text: "Figuring out how AI reshapes entire society.", type: "socializer" },
               { text: "Finding loopholes to exploit AI responses.", type: "killer" }
             ]
           },
@@ -319,7 +319,7 @@
             question: "Who do you admire more?",
             options: [
               { text: "People who carefully set ethical AI standards.", type: "socializer" },
-              { text: "People who aren't afraid to exploit AI recklessly for gain.", type: "killer" }
+              { text: "People who aren't afraid to use AI for quick gains.", type: "killer" }
             ]
           },
           {
@@ -335,7 +335,7 @@
             question: "If your AI demo fails, are you more...?",
             options: [
               { text: "embarrassed about wrong information affecting someone", type: "socializer" },
-              { text: "amused that it's messy but still useful for cutting corners", type: "killer" }
+              { text: "amused that it's messy, but still useful for cutting corners", type: "killer" }
             ]
           },
           {
@@ -388,7 +388,7 @@
           },
           {
             id: 32,
-            question: "Your AI makes a silly but funny mistake. Do you...?",
+            question: "Your AI makes a silly mistake. Do you...?",
             options: [
               { text: "share it as a teaching story about AI limits", type: "socializer" },
               { text: "ignore it if the shortcut saved your time anyway", type: "killer" }
@@ -439,7 +439,7 @@
             question: "You win an AI hackathon. Do you prefer that the victory is...?",
             options: [
               { text: "for building a practical tool people can actually use immediately", type: "achiever" },
-              { text: "for showing a bizarre capability no one spotted before", type: "explorer" }
+              { text: "for showing a quirky capability no one spotted before", type: "explorer" }
             ]
           },
           {
@@ -543,7 +543,7 @@
                     max: 1.0,
                     title: {
                       display: true,
-                      text: 'Mad AI Scientist ←              → Everyday Pragmatist'
+                      text: 'Frantic Explorer ←              → Everyday Pragmatist'
                     },
                     grid: {
                       color: 'rgba(0, 0, 0, 0.1)'
@@ -556,7 +556,7 @@
                     max: 1.0,
                     title: {
                       display: true,
-                      text: 'Reckless Wizard ←              → AI Humanist'
+                      text: 'Reckless Wizard ←              → Empathetic Socializer'
                     },
                     grid: {
                       color: 'rgba(0, 0, 0, 0.1)'
@@ -600,11 +600,11 @@
             let secondary = '';
             
             if (Math.abs(x) > Math.abs(y)) {
-              primary = x > 0 ? 'Everyday Pragmatist' : 'Mad AI Scientist';
-              secondary = y > 0 ? 'Reckless Wizard' : 'AI Humanist';
+              primary = x > 0 ? 'Everyday Pragmatist' : 'Frantic Explorer';
+              secondary = y > 0 ? 'Reckless Wizard' : 'Empathetic Socializer';
             } else {
-              primary = y > 0 ? 'Reckless Wizard' : 'AI Humanist';
-              secondary = x > 0 ? 'Everyday Pragmatist' : 'Mad AI Scientist';
+              primary = y > 0 ? 'Reckless Wizard' : 'Empathetic Socializer';
+              secondary = x > 0 ? 'Everyday Pragmatist' : 'Frantic Explorer';
             }
             
             return `${primary} with ${secondary} tendencies`;
@@ -624,11 +624,11 @@
                     </div>
                     <div className="score-item">
                       <div className="score-value">{scores.explorer}</div>
-                      <div className="score-label">Mad AI Scientist</div>
+                      <div className="score-label">Frantic Explorer</div>
                     </div>
                     <div className="score-item">
                       <div className="score-value">{scores.socializer}</div>
-                      <div className="score-label">AI Humanist</div>
+                      <div className="score-label">Empathetic Socializer</div>
                     </div>
                     <div className="score-item">
                       <div className="score-value">{scores.killer}</div>
@@ -645,8 +645,8 @@
                   <div style={{ marginTop: '20px', fontSize: '14px', color: '#666' }}>
                     <p><strong>Chart Explanation:</strong></p>
                     <ul>
-                      <li>X-axis: Mad AI Scientist (left) ← → Everyday Pragmatist (right)</li>
-                      <li>Y-axis: AI Humanist (bottom) ← → Reckless Wizard (top)</li>
+                      <li>X-axis: Frantic Explorer (left) ← → Everyday Pragmatist (right)</li>
+                      <li>Y-axis: Empathetic Socializer (bottom) ← → Reckless Wizard (top)</li>
                       <li>Your position shows your dominant GenAI user type tendencies</li>
                     </ul>
                   </div>
@@ -655,9 +655,9 @@
                     <p><strong>User types Explanation:</strong></p>
                     <ul>
                       <li><b>Reckless Wizard:</b> The chaos caster: lives for glitches, loopholes, and forbidden outputs.</li>
-                      <li><b>Mad AI Scientist:</b> The digital tinkerer: fiddles with AI to uncover surprises and patterns.</li>
+                      <li><b>Frantic Explorer:</b> The digital tinkerer: fiddles with the AI to uncover surprises and patterns.</li>
                       <li><b>Everyday Pragmatist:</b> The power‑user: asks AI for results, achievements, and winning outcomes.</li>
-                      <li><b>AI Humanist:</b> The friendly chatter: treats AI like a buddy, not just a tool.</li>
+                      <li><b>Empathetic Socializer:</b> The friendly chatter: treats AI like a buddy, not just a tool.</li>
                     </ul>
                   </div>
 
@@ -686,10 +686,10 @@
             <div className="container">
               <h1>GenAI User Type Questionnaire</h1>
               <p style={{ textAlign: 'center', color: '#666', marginBottom: '5px' }}>
-                Answer all questions to discover your GenAI usage personality type.
+                Answer all questions to discover your GenAI user type.
               </p>
               <p style={{ textAlign: 'center', color: '#666', marginBottom: '20px' }}>
-              (Based loosely on Bartle's taxonomy of player types).
+              (Based loosely on Bartle taxonomy of player types).
               </p>
 
               {questions.map((q) => (
