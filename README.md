@@ -1,6 +1,7 @@
 # Find out your GenAI User Type
  
 A questionnaire containing 39 unique questions. When you answer all questions, test will show unscientific results about your GenAI user type.
+https://atommiska.github.io/GenAI-User-Type/
 
 Framework is based on Bartle Taxonomy of player types. Questions are modified to respresent GenAI instead of the original Gaming context. See: https://psytests.org/cyber/bartleen.html
 
